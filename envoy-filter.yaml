@@ -1,0 +1,25 @@
+# The following filter verifies that the SNI of the mutual TLS connection is
+# identical to the original SNI issued by the client (the SNI used for routing by the SNI proxy).
+# The filter prevents the gateway from being deceived by a malicious client: routing to one SNI while
+# reporting some other value of SNI. If the original SNI does not match the SNI of the mutual TLS connection,
+# the filter will block the connection to the external service.
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: egress-gateway-sni-verifier
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      app: istio-egressgateway-with-sni-proxy
+  configPatches:
+  - applyTo: NETWORK_FILTER
+    match:
+      context: GATEWAY
+      listener:
+        portNumber: 443
+    patch:
+      operation: INSERT_FIRST
+      value:
+         name: sni_verifier
+         config: {}
