@@ -202,15 +202,32 @@ spec:
         - mountPath: /etc/istio/egressgateway-ca-certs
           name: egressgateway-ca-certs
           readOnly: true
-      - image: nginx
+      - command:
+        - mitmdump
+        - --mode
+        - transparent
+        image: mitmproxy/mitmproxy
         name: sni-proxy
         securityContext:
           runAsNonRoot: true
           runAsUser: 101
         volumeMounts:
-        - mountPath: /etc/nginx
+        - mountPath: /.mitmproxy
+          name: config-props
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - ' echo ''Setting configmaps''  && cp /tmp/configmapfolder/config.yaml /.mitmproxy/config.yaml'
+        image: busybox:latest
+        imagePullPolicy: Always
+        name: setup-configs
+        volumeMounts:
+        - mountPath: /.mitmproxy/
+          name: config-props
+        - mountPath: /tmp/configmapfolder/
           name: sni-proxy-config
-          readOnly: true
+          readOnly: false
       securityContext:
         fsGroup: 1337
         runAsGroup: 1337
@@ -257,6 +274,8 @@ spec:
           defaultMode: 292
           name: egress-sni-proxy-configmap
         name: sni-proxy-config
+      - emptyDir: {}
+        name: config-props
 ---
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget

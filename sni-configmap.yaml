@@ -25,3 +25,9 @@ data:
         ssl_preread  on;
       }
     }
+  config.yaml: |
+    listen_port: 18443
+    ssl_insecure: true
+    showhost: true
+    termlog_verbosity: debug
+    console_eventlog_verbosity: debug
