@@ -10,7 +10,7 @@ k8s_yaml('./service-entry-wikipedia.yaml')
 k8s_yaml('./egress-gw.yaml')
 k8s_yaml('./envoy-filter.yaml')
 
-
+k8s_resource('istio-egressgateway-with-sni-proxy', port_forwards=[port_forward(8081, 8081),port_forward(23336, 23336)])
 
 
 

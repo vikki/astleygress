@@ -31,3 +31,75 @@ data:
     showhost: true
     termlog_verbosity: debug
     console_eventlog_verbosity: debug
+  addheader.py: |
+    """Add an HTTP header to each response."""
+
+    from flask import Flask
+    from mitmproxy.addons import asgiapp
+    import threading
+
+    app = Flask("proxapp")
+    data = 'foo'
+    host_name = "0.0.0.0"
+    port = 23336
+    enabled = True
+    addons = []
+
+    class AddHeader:
+      def __init__(self):
+          self.num = 0
+          threading.Thread(target=lambda: app.run(host=host_name, port=port, debug=True, use_reloader=False)).start()
+
+      def response(self, flow):
+        if enabled:
+            self.num = self.num + 1
+            flow.response.headers["count"] = str(self.num)
+
+    addons = [
+      AddHeader()
+    ]
+
+    @app.route('/')
+    def hello_world() -> str:
+        return 'Hello World! yay' + str(enabled)
+
+    @app.route('/on')
+    def on() -> str:
+        global enabled
+        enabled = True
+        return 'whoo on'
+
+    @app.route('/off')
+    def off() -> str:
+        global enabled
+        enabled = False
+        return 'whoo offf'
+
+  wsgi_app.py: |
+    """
+    Host a WSGI app in mitmproxy.
+
+    This example shows how to graft a WSGI app onto mitmproxy. In this
+    instance, we're using the Flask framework (http://flask.pocoo.org/) to expose
+    a single simplest-possible page.
+    """
+    from flask import Flask
+    from mitmproxy.addons import asgiapp
+
+    app = Flask("proxapp")
+
+
+    @app.route('/')
+    def hello_world() -> str:
+        return 'Hello World!'
+
+
+    addons = [
+        # Host app at the magic domain "example.com" on port 80. Requests to this
+        # domain and port combination will now be routed to the WSGI app instance.
+        asgiapp.WSGIApp(app, "de.wikipedia.org", 80)
+        # SSL works too, but the magic domain needs to be resolvable from the mitmproxy machine due to mitmproxy's design.
+        # mitmproxy will connect to said domain and use serve its certificate (unless --no-upstream-cert is set)
+        # but won't send any data.
+        # mitmproxy.ctx.master.apps.add(app, "lol.wikipedia.org", 443)
+    ]

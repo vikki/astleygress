@@ -153,6 +153,10 @@ spec:
         image: docker.io/istio/proxyv2:1.13.0
         name: istio-proxy
         ports:
+        - containerPort: 23336 #wsgi add on
+          protocol: TCP
+        - containerPort: 8081 # built in web port
+          protocol: TCP
         - containerPort: 8443
           protocol: TCP
         - containerPort: 15090
@@ -203,9 +207,12 @@ spec:
           name: egressgateway-ca-certs
           readOnly: true
       - command:
-        - mitmdump
-        - --mode
-        - transparent
+        - mitmweb
+        - -s
+        - /.mitmproxy/addheader.py
+        #- /.mitmproxy/wsgi_app.py
+        # - --mode
+        # - transparent
         image: mitmproxy/mitmproxy
         name: sni-proxy
         securityContext:
@@ -218,7 +225,7 @@ spec:
       - command:
         - sh
         - -c
-        - ' echo ''Setting configmaps''  && cp /tmp/configmapfolder/config.yaml /.mitmproxy/config.yaml'
+        - ' echo ''Setting configmaps''  && cp /tmp/configmapfolder/config.yaml /.mitmproxy/config.yaml && cp /tmp/configmapfolder/addheader.py /.mitmproxy/addheader.py && cp /tmp/configmapfolder/wsgi_app.py /.mitmproxy/wsgi_app.py'
         image: busybox:latest
         imagePullPolicy: Always
         name: setup-configs
@@ -373,6 +380,14 @@ spec:
     port: 443
     protocol: TCP
     targetPort: 8443
+  - name: web
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  - name: webaddon
+    port: 23336
+    protocol: TCP
+    targetPort: 23336
   selector:
     app: istio-egressgateway-with-sni-proxy
     istio: egressgateway-with-sni-proxy
