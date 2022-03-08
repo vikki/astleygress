@@ -37,6 +37,7 @@ data:
     from flask import Flask
     from mitmproxy.addons import asgiapp
     import threading
+    import re
 
     app = Flask("proxapp")
     data = 'foo'
@@ -45,12 +46,27 @@ data:
     enabled = True
     addons = []
 
+    response_overrides =  [{'hostMatch': re.compile('.*e.wikipedia.org.*'), 'hits': 2, 'response': '<title> yo <title>'}]
+
     class AddHeader:
       def __init__(self):
           self.num = 0
           threading.Thread(target=lambda: app.run(host=host_name, port=port, debug=True, use_reloader=False)).start()
 
       def response(self, flow):
+        # see if the override works via needle requests, got? might need NODE_EXTRA_CA_CERTS
+        # unhardcode this so its enabled via endpoints
+        # decrement after use?
+        # wrap in a test demo?
+        # kiali visualisation of the structure
+
+        print ('o hai: '+ flow.request.host)
+        matchy = response_overrides[0]['hostMatch'].match(flow.request.host)
+        if matchy is None:
+          print (flow.request.host + 'no matchy')
+        else:
+          print (flow.request.host + 'matchy!!')
+          flow.response.content = bytes(response_overrides[0]['response'], 'utf-8')
         if enabled:
             self.num = self.num + 1
             flow.response.headers["count"] = str(self.num)
