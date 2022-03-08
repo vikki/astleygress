@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "distestful-chart.fullname" . }}
+  labels:
+    {{- include "distestful-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: httpforkubetap
+  selector:
+    {{- include "distestful-chart.selectorLabels" . | nindent 4 }}

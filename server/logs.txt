@@ -1,0 +1,21 @@
+Vikkis-MacBook-Pro-2:istio vikki$ kubectl logs -l istio=egressgateway-with-sni-proxy -c istio-proxy -n istio-system2021-10-25T18:16:43.751354Z     info    xdsproxy        disconnected from XDS server: istiod.istio-system.svc:15012
+2021-10-25T18:16:43.900391Z     warning envoy config    StreamAggregatedResources gRPC config stream closed: 0, 
+2021-10-25T18:16:45.020067Z     info    xdsproxy        Envoy ADS stream established
+2021-10-25T18:16:45.520918Z     info    xdsproxy        connecting to upstream XDS server: istiod.istio-system.svc:15012
+2021-10-25T18:17:05.576722Z     error   xdsproxy        failed to create upstream grpc client: rpc error: code = Unavailable desc = connection error: desc = "transport: authentication handshake failed: context deadline exceeded"
+2021-10-25T18:17:05.584662Z     info    xdsproxy        disconnected from XDS server: istiod.istio-system.svc:15012
+2021-10-25T18:17:05.591671Z     warning envoy config    StreamAggregatedResources gRPC config stream closed: 14, connection error: desc = "transport: authentication handshake failed: context deadline exceeded"
+2021-10-25T18:17:05.681269Z     info    xdsproxy        Envoy ADS stream established
+2021-10-25T18:17:05.681966Z     info    xdsproxy        connecting to upstream XDS server: istiod.istio-system.svc:15012
+[2021-10-25T18:17:47.267Z] "- - -" 0 - "-" 864 93481 142 - "-" "-" "-" "-" "127.0.0.1:18443" outbound|18443||sni-proxy.local 127.0.0.1:35716 10.244.0.29:8443 10.244.0.28:39580 simple.wikipedia.org -
+Vikkis-MacBook-Pro-2:istio vikki$ kubectl logs -l istio=egressgateway-with-sni-proxy -n istio-system -c sni-proxy
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+127.0.0.1 [25/Oct/2021:18:10:09 +0000] TCP [en.wikipedia.org]200 93297 344 1.503
+127.0.0.1 [25/Oct/2021:18:10:19 +0000] TCP [en.wikipedia.org]200 93276 344 0.102
+127.0.0.1 [25/Oct/2021:18:10:27 +0000] TCP [en.wikipedia.org]200 93298 344 0.144
+127.0.0.1 [25/Oct/2021:18:10:28 +0000] TCP [de.wikipedia.org]200 87250 352 0.421
+127.0.0.1 [25/Oct/2021:18:10:53 +0000] TCP [simple.wikipedia.org]200 93504 347 1.377
+127.0.0.1 [25/Oct/2021:18:12:31 +0000] TCP [simple.wikipedia.org]200 93505 347 0.265
+127.0.0.1 [25/Oct/2021:18:17:47 +0000] TCP [simple.wikipedia.org]200 93481 347 0.110
